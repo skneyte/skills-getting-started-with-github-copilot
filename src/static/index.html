@@ -46,5 +46,47 @@
     </footer>
 
     <script src="app.js"></script>
+    <script>
+      // --- NUEVO CÓDIGO PARA MOSTRAR PARTICIPANTES EN LAS TARJETAS DE ACTIVIDAD ---
+      async function loadActivities() {
+        const res = await fetch('/activities');
+        const activities = await res.json();
+        const list = document.getElementById('activities-list');
+        const select = document.getElementById('activity');
+        list.innerHTML = '';
+        select.innerHTML = '<option value="">-- Select an activity --</option>';
+        Object.entries(activities).forEach(([name, data]) => {
+          // Crear tarjeta de actividad
+          const card = document.createElement('div');
+          card.className = 'activity-card';
+          card.innerHTML = `
+            <h4>${name}</h4>
+            <p>${data.description}</p>
+            <p><strong>Schedule:</strong> ${data.schedule}</p>
+            <p><strong>Max participants:</strong> ${data.max_participants}</p>
+            <div class="participants-section">
+              <strong>Participants:</strong>
+              ${
+                data.participants.length > 0
+                  ? `<ul class="participants-list">${data.participants.map(email => `<li>${email}</li>`).join('')}</ul>`
+                  : `<span class="no-participants">No participants yet</span>`
+              }
+            </div>
+          `;
+          list.appendChild(card);
+
+          // Añadir opción al select
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          select.appendChild(option);
+        });
+      }
+
+      // ...existing code for signup form...
+
+      // Inicializar
+      loadActivities();
+    </script>
   </body>
 </html>
