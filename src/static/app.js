@@ -27,15 +27,40 @@ document.addEventListener("DOMContentLoaded", () => {
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
           <div class="participants-section">
             <strong>Participants:</strong>
-            ${
-              details.participants.length > 0
-                ? `<ul class="participants-list">${details.participants.map(email => `<li>${email}</li>`).join('')}</ul>`
-                : `<span class="no-participants">No participants yet</span>`
-            }
+            <ul class="participants-list" style="padding-left:0;">
+              ${details.participants.length > 0
+                ? details.participants.map((email, idx) => `
+                  <li style="list-style-type:none; display:flex; align-items:center;">
+                    <span>${email}</span>
+                    <button class="delete-participant" data-activity="${name}" data-email="${email}" title="Eliminar participante" style="margin-left:8px; cursor:pointer; background:none; border:none; font-size:1em;">🗑️</button>
+                  </li>
+                `).join('')
+                : `<span class="no-participants">No participants yet</span>`}
+            </ul>
           </div>
         `;
 
         activitiesList.appendChild(activityCard);
+      });
+
+      // Agregar eventos a los botones de eliminar
+      document.querySelectorAll('.delete-participant').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const activity = btn.getAttribute('data-activity');
+          const email = btn.getAttribute('data-email');
+          try {
+            const response = await fetch(`/activities/${encodeURIComponent(activity)}/unregister?email=${encodeURIComponent(email)}`, {
+              method: 'POST',
+            });
+            if (response.ok) {
+              fetchActivities();
+            } else {
+              alert('No se pudo eliminar el participante.');
+            }
+          } catch (err) {
+            alert('Error de red al eliminar participante.');
+          }
+        });
 
         // Add option to select dropdown
         const option = document.createElement("option");
